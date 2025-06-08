@@ -1,2 +1,3 @@
 # sse-practice
-intro to SSE
+
+was just trying to understand how SSE works
