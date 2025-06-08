@@ -36,17 +36,21 @@ function sseSetup(res) {
 }
 
 function sseProgress(res, progress = 0) {
-  var newProgress = Math.min(progress + Math.random() * 10, 100),
-    data = `data: ${Math.floor(newProgress)}% complete\n\n`;
+  var newProgress = Math.min(progress + Math.random() * 10, 100);
 
-  res.write("event: progress\n");
-  res.write(`id: id_${newProgress.toFixed(2)}\n`);
-  res.write(data);
+  var payload = [
+    "event: progress",
+    `id: id_${newProgress.toFixed(2)}`,
+    `data: ${Math.floor(newProgress)}% complete`,
+  ];
+  res.write(setSsePayload(payload));
 
   if (newProgress >= 100) {
     console.log("+ sse request complete\n");
-    res.write("event: done\n");
-    res.write("data: 100% complete\n\n");
+
+    payload = ["event: done", "data: 100% complete"];
+    res.write(setSsePayload(payload));
+
     return;
   }
 
@@ -54,4 +58,14 @@ function sseProgress(res, progress = 0) {
     return sseProgress(res, newProgress);
   };
   setTimeout(cb, Math.random() * 500);
+}
+
+/**
+ * Converts an array into a Server-Sent Events (SSE) compatible payload.
+ *
+ * @param {Array} arr - The array to be converted into SSE payload.
+ * @returns {string} A formatted string that follows the SSE protocol format.
+ */
+function setSsePayload(arr) {
+  return arr.join("\n") + "\n\n";
 }
